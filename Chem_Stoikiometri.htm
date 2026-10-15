@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab Maya Kimia — Stoikiometri: Pereaksi Pembatas | Fase E</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --g900:#0b3d2e; --g700:#0d5c46; --g600:#12795c; --g500:#16a34a; --g100:#dcfce7; --g50:#f0fdf4;
+  --teal:#0f766e; --amber:#f59e0b; --coral:#e11d48; --sky:#0284c7;
+  --ink:#1e293b; --muted:#64748b; --line:#e2e8f0; --card:#ffffff;
+  --r:16px;
+  --shadow:0 12px 32px rgba(13,92,70,.12), 0 2px 8px rgba(0,0,0,.06);
+  --shadow-sm:0 4px 14px rgba(13,92,70,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Poppins','Segoe UI',system-ui,sans-serif;color:var(--ink);
+  background:linear-gradient(160deg,#eef7f1 0%,#e4f3f2 45%,#f5faec 100%);}
+/* ===== animated background blobs ===== */
+.blob{position:fixed;border-radius:50%;filter:blur(90px);opacity:.35;z-index:0;pointer-events:none}
+.b1{width:520px;height:520px;background:#86efac;top:-160px;left:-120px;animation:fl 16s ease-in-out infinite}
+.b2{width:460px;height:460px;background:#7dd3fc;bottom:-140px;right:-100px;animation:fl 20s ease-in-out infinite reverse}
+.b3{width:380px;height:380px;background:#fde68a;top:40%;left:55%;animation:fl 24s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,-40px) scale(1.15)}}
+.hidden{display:none!important}
+
+/* ============ SPLASH ============ */
+#splash{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(150deg,#0b3d2e 0%,#0d5c46 45%,#0f766e 100%);color:#fff;overflow:hidden}
+#splash .float-ico{position:absolute;font-size:34px;opacity:.5;animation:rise 6s linear infinite}
+@keyframes rise{0%{transform:translateY(110vh) rotate(0)}100%{transform:translateY(-15vh) rotate(360deg)}}
+.flask-wrap{position:relative;width:150px;height:170px;margin-bottom:26px;animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#splash h1{font-size:44px;font-weight:800;letter-spacing:1px;text-align:center}
+#splash h1 span{color:#fde68a}
+#splash h2{font-size:24px;font-weight:600;color:#a7f3d0;margin-top:6px;text-align:center}
+#splash .meta{margin-top:14px;font-size:15px;color:#d1fae5;background:rgba(255,255,255,.12);padding:8px 22px;border-radius:999px}
+#splashBarWrap{width:340px;height:10px;background:rgba(255,255,255,.2);border-radius:99px;margin-top:30px;overflow:hidden}
+#splashBar{height:100%;width:0;background:linear-gradient(90deg,#fde68a,#f59e0b);border-radius:99px;transition:width .3s}
+#splashStart{margin-top:26px;padding:14px 44px;font-size:18px;font-weight:700;border:none;border-radius:999px;cursor:pointer;
+  background:#fde68a;color:#7c2d12;box-shadow:0 10px 26px rgba(0,0,0,.3);transition:transform .2s}
+#splashStart:hover{transform:scale(1.06)}
+#splash .src{position:absolute;bottom:18px;font-size:12.5px;color:#a7f3d0;opacity:.85;text-align:center;padding:0 20px}
+
+/* ============ LOGIN ============ */
+#loginView{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center}
+.login-card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:44px 52px;width:460px;text-align:center;position:relative;z-index:2;animation:popIn .5s}
+@keyframes popIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.login-card .ava{width:92px;height:92px;border-radius:50%;background:var(--g100);display:flex;align-items:center;justify-content:center;font-size:46px;margin:0 auto 14px}
+.login-card h2{color:var(--g700);font-size:24px}
+.login-card p{color:var(--muted);font-size:13.5px;margin:6px 0 22px}
+.login-card label{display:block;text-align:left;font-size:13.5px;font-weight:600;margin:12px 0 6px;color:var(--ink)}
+.login-card input,.login-card select{width:100%;padding:13px 16px;border:2px solid var(--line);border-radius:12px;font-size:15px;font-family:inherit;outline:none;transition:border .2s}
+.login-card input:focus,.login-card select:focus{border-color:var(--g600)}
+.btn-main{width:100%;margin-top:24px;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#12795c,#0d5c46);color:#fff;font-size:16.5px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s;font-family:inherit}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(13,92,70,.35)}
+.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-9px)}75%{transform:translateX(9px)}}
+
+/* ============ APP SHELL ============ */
+#appView{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column}
+header{height:66px;flex:0 0 auto;background:linear-gradient(90deg,#0b3d2e,#0d5c46 60%,#0f766e);display:flex;align-items:center;padding:0 24px;gap:16px;color:#fff;box-shadow:0 4px 18px rgba(0,0,0,.18);z-index:20}
+.logo-badge{width:44px;height:44px;background:#fde68a;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto}
+header .ttl{line-height:1.15}
+header .ttl b{font-size:18px;display:block}
+header .ttl small{font-size:11.5px;color:#a7f3d0}
+.hspace{flex:1}
+.chip-user{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:8px 16px;border-radius:999px;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.hbtn{width:42px;height:42px;border:none;border-radius:12px;background:rgba(255,255,255,.14);color:#fff;font-size:19px;cursor:pointer;transition:background .2s,transform .15s}
+.hbtn:hover{background:rgba(255,255,255,.3);transform:scale(1.08)}
+.hbtn.reset{background:#dc2626}
+.hbtn.reset:hover{background:#ef4444}
+
+nav{flex:0 0 auto;background:var(--card);box-shadow:0 3px 12px rgba(0,0,0,.07);display:flex;justify-content:center;gap:8px;padding:9px 16px;z-index:19;flex-wrap:nowrap}
+.tab-btn{border:2px solid transparent;background:#f1f5f9;color:#475569;font-family:inherit;font-size:14.5px;font-weight:600;padding:9px 20px;border-radius:999px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tab-btn:hover{background:#e2e8f0;transform:translateY(-1px)}
+.tab-btn.active{background:linear-gradient(135deg,#12795c,#0d5c46);color:#fff;box-shadow:0 6px 16px rgba(13,92,70,.35)}
+
+main{flex:1;position:relative;overflow:hidden;z-index:5}
+.tab-panel{position:absolute;inset:0;overflow-y:auto;padding:20px 30px 26px;display:none}
+.tab-panel.active{display:block;animation:fadeIn .35s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.tab-panel::-webkit-scrollbar{width:10px}
+.tab-panel::-webkit-scrollbar-thumb{background:#b6d4c8;border-radius:9px}
+
+/* ============ GENERIC ============ */
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px 26px;position:relative}
+.card h3{color:var(--g700);font-size:18.5px;display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.card h3 .ic{width:38px;height:38px;background:var(--g100);border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex:0 0 auto}
+.card p,.card li{font-size:14.5px;line-height:1.7;color:#334155}
+.eq{display:inline-block;background:var(--g50);border:1.5px solid #bbe7d2;border-radius:10px;padding:7px 14px;font-weight:700;color:var(--g700);font-size:15px;margin:8px 0}
+.note{background:#fffbeb;border-left:5px solid var(--amber);border-radius:10px;padding:12px 16px;font-size:13.5px;margin-top:12px;line-height:1.6}
+.btn{border:none;border-radius:12px;padding:11px 20px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-green{background:linear-gradient(135deg,#12795c,#0d5c46);color:#fff}
+.btn-amber{background:#f59e0b;color:#7c2d12}
+.btn-ghost{background:#f1f5f9;color:#475569}
+.btn-red{background:#fee2e2;color:#b91c1c}
+.pill{display:inline-block;padding:5px 14px;border-radius:999px;font-size:12.5px;font-weight:700}
+.pill.g{background:var(--g100);color:var(--g700)} .pill.a{background:#fef3c7;color:#92400e} .pill.b{background:#e0f2fe;color:#0369a1}
+
+/* ============ THEORY ============ */
+.teori-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1720px;margin:0 auto}
+.teori-grid .span2{grid-column:span 2}
+.char-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.char-item{background:#f8fafc;border:1.5px solid var(--line);border-radius:12px;padding:11px 13px;font-size:13.5px;line-height:1.5}
+.char-item b{color:var(--g700);display:flex;gap:7px;align-items:center;margin-bottom:3px}
+.step-list{counter-reset:st;list-style:none;margin-top:8px}
+.step-list li{counter-increment:st;position:relative;padding:9px 0 9px 44px;font-size:14.5px;line-height:1.6}
+.step-list li::before{content:counter(st);position:absolute;left:0;top:8px;width:30px;height:30px;border-radius:50%;background:var(--g600);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.src{max-width:1720px;margin:14px auto 0;text-align:center;font-size:12.5px;color:var(--muted)}
+
+/* ============ SIMULATION ============ */
+.sim-grid{display:grid;grid-template-columns:315px 1fr 335px;gap:16px;height:calc(100vh - 152px);max-width:1860px;margin:0 auto}
+.sim-col{display:flex;flex-direction:column;gap:14px;min-height:0}
+.panel{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:18px 20px}
+.panel h4{color:var(--g700);font-size:15.5px;margin-bottom:12px;display:flex;gap:8px;align-items:center}
+.slider-row{margin-bottom:16px}
+.slider-row .sl-top{display:flex;justify-content:space-between;font-size:13.5px;font-weight:600;margin-bottom:6px}
+.slider-row .sl-val{background:var(--g600);color:#fff;border-radius:8px;padding:2px 11px;font-size:13px}
+input[type=range]{width:100%;accent-color:#12795c;height:26px;cursor:pointer}
+#btnRun{width:100%;justify-content:center;font-size:16px;padding:14px}
+#simStatus{text-align:center;font-size:13px;color:var(--muted);margin-top:10px;min-height:20px;font-weight:600}
+.chamber{flex:1;display:flex;flex-direction:column;min-height:0;background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 20px;overflow:hidden}
+.eq-banner{text-align:center;font-size:26px;font-weight:800;color:var(--g700);background:var(--g50);border:2px solid #bbe7d2;border-radius:14px;padding:10px;margin-bottom:12px;transition:transform .4s;transform:perspective(600px) rotateX(6deg)}
+.eq-banner:hover{transform:perspective(600px) rotateX(0) scale(1.02)}
+#chamber{flex:1;background:radial-gradient(ellipse at 50% 30%,#f7fdf9 0%,#e9f6ef 70%);border:2.5px dashed #9fd4bd;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:22px;padding:14px;overflow-y:auto;position:relative;min-height:0}
+#chamber::-webkit-scrollbar{width:8px}#chamber::-webkit-scrollbar-thumb{background:#c4e3d6;border-radius:8px}
+.mol-group{text-align:center;max-width:46%}
+.mol-group-title{font-size:12.5px;font-weight:800;color:var(--g700);letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,.75);display:inline-block;padding:4px 14px;border-radius:99px;margin-bottom:10px}
+.mol-icons{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:430px;margin:0 auto}
+.molwrap{width:58px;transition:all .4s;animation:popIn .4s}
+.molwrap svg{width:100%;height:auto;display:block}
+.molwrap.dim{opacity:.38;filter:grayscale(.5)}
+.molwrap.consuming{animation:zap 1s ease-in forwards}
+@keyframes zap{0%{transform:scale(1)}35%{transform:scale(1.25) rotate(-8deg)}100%{transform:scale(0) rotate(200deg) translateY(60px);opacity:0}}
+.mol-caption{margin-top:10px;font-size:13.5px;font-weight:700;color:#334155;background:rgba(255,255,255,.8);border-radius:10px;padding:5px 12px;display:inline-block}
+.arrow-big{font-size:42px;color:var(--g600);animation:pulseA 1.6s infinite}
+@keyframes pulseA{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.2);opacity:1}}
+.ghost-q{font-size:64px;font-weight:800;color:#9fd4bd}
+#resBadge{text-align:center;padding:12px;border-radius:14px;font-size:15.5px;font-weight:800;background:#f1f5f9;color:var(--muted);margin-bottom:12px;transition:all .3s}
+#resBadge.on{background:linear-gradient(135deg,#12795c,#0f766e);color:#fff;box-shadow:0 8px 20px rgba(13,92,70,.35)}
+.res-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.res-item{background:#f8fafc;border:1.5px solid var(--line);border-radius:12px;padding:9px 6px;text-align:center}
+.res-item span{font-size:11px;color:var(--muted);display:block;font-weight:600}
+.res-item b{font-size:17px;color:var(--g700)}
+.res-steps{list-style:none;font-size:13px;line-height:1.55;background:#f0fdf4;border:1.5px solid #bbe7d2;border-radius:12px;padding:12px 14px 12px 12px;min-height:88px}
+.res-steps li{padding:4px 0;opacity:0;transform:translateX(-8px);transition:all .4s}
+.res-steps li.show{opacity:1;transform:none}
+#m3dScene{height:172px;perspective:750px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;border-radius:12px;background:radial-gradient(circle at 50% 45%,#f0fdf4,#dcf3e7)}
+#m3dScene:active{cursor:grabbing}
+#m3d{position:relative;width:0;height:0;transform-style:preserve-3d}
+.m3d-atom{position:absolute;left:50%;top:50%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;box-shadow:inset -5px -7px 12px rgba(0,0,0,.28), 0 0 14px rgba(0,0,0,.12)}
+.m3d-bond{position:absolute;left:50%;top:50%;height:6px;border-radius:3px;background:linear-gradient(#cbd5e1,#64748b)}
+.m3d-hint{text-align:center;font-size:11.5px;color:var(--muted);margin-top:6px}
+
+/* ============ LKPD ============ */
+.lkpd-grid{display:grid;grid-template-columns:390px 1fr;gap:18px;max-width:1800px;margin:0 auto;align-items:start}
+.tbl-wrap{overflow-x:auto;border:1.5px solid var(--line);border-radius:12px}
+table.lk{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+table.lk th{background:var(--g600);color:#fff;padding:10px 8px;font-size:12.5px;text-align:center}
+table.lk td{border-top:1.5px solid var(--line);padding:9px 8px;text-align:center}
+table.lk tr:nth-child(even) td{background:#f8fafc}
+.delrow{background:#fee2e2;color:#b91c1c;border:none;border-radius:8px;padding:4px 9px;cursor:pointer;font-weight:700}
+textarea.ana{width:100%;min-height:58px;border:2px solid var(--line);border-radius:12px;padding:10px 13px;font-family:inherit;font-size:13.5px;resize:vertical;outline:none;margin-top:6px}
+textarea.ana:focus{border-color:var(--g600)}
+#inpKesimpulan{min-height:92px}
+.ana-q{font-size:13.8px;font-weight:600;margin-top:13px;color:var(--ink)}
+.lk-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+
+/* ============ EVALUATION ============ */
+.eval-wrap{max-width:1010px;margin:0 auto}
+.qcard{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:18px 22px;margin-bottom:14px;border-left:6px solid var(--g600)}
+.qcard .qhead{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.qnum{width:32px;height:32px;flex:0 0 auto;border-radius:50%;background:var(--g600);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px}
+.qtext{font-size:14.8px;font-weight:600;line-height:1.55;padding-top:4px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.opt{display:flex;gap:10px;align-items:center;border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;font-size:13.8px;transition:all .15s;background:#fff}
+.opt:hover{border-color:#8fd8ba}
+.opt input{accent-color:#12795c;width:17px;height:17px;flex:0 0 auto}
+.opt:has(input:checked){border-color:var(--g600);background:var(--g50)}
+.qcard.graded .opt.correct{border-color:#16a34a;background:#dcfce7}
+.qcard.graded .opt.wrongpick{border-color:#e11d48;background:#fee2e2}
+.qcard.graded .opt{pointer-events:none}
+.cloze-p{font-size:14.8px;line-height:2.4;background:#f8fafc;border:1.5px dashed #c3d9ce;border-radius:12px;padding:14px 18px}
+.cloze-p select{font-family:inherit;font-size:13.5px;padding:5px 9px;border-radius:9px;border:2px solid var(--g600);background:#fff;font-weight:600;outline:none;margin:0 3px}
+.qcard.graded .cloze-p select{pointer-events:none}
+.sel-ok{border-color:#16a34a!important;background:#dcfce7!important}
+.sel-no{border-color:#e11d48!important;background:#fee2e2!important}
+.eval-bar{display:flex;gap:12px;justify-content:center;margin:18px 0 8px}
+
+/* ============ PROFILE ============ */
+.prof-wrap{max-width:900px;margin:0 auto;display:grid;grid-template-columns:330px 1fr;gap:22px;align-items:stretch}
+.prof-photo{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:26px;text-align:center}
+.prof-photo img{width:210px;height:210px;border-radius:50%;object-fit:cover;border:6px solid var(--g100);box-shadow:0 10px 26px rgba(13,92,70,.25)}
+.prof-photo h3{margin-top:16px;color:var(--g700);font-size:18px}
+.prof-info{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:24px 28px}
+.prof-info h3{color:var(--g700);font-size:19px;margin-bottom:14px}
+.info-row{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1.5px dashed var(--line);font-size:14.5px}
+.info-row .ic2{width:36px;height:36px;background:var(--g100);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex:0 0 auto}
+.info-row b{color:var(--g700)}
+
+/* ============ AI ASSISTANT ============ */
+#aiFab{position:fixed;right:22px;bottom:22px;width:62px;height:62px;border-radius:50%;border:none;background:linear-gradient(135deg,#f59e0b,#ea580c);color:#fff;font-size:28px;cursor:pointer;z-index:60;box-shadow:0 10px 26px rgba(234,88,12,.45);transition:transform .2s;display:flex;align-items:center;justify-content:center}
+#aiFab:hover{transform:scale(1.1) rotate(6deg)}
+#aiFab .dot{position:absolute;top:2px;right:2px;width:15px;height:15px;background:#22c55e;border:2.5px solid #fff;border-radius:50%;animation:pulseA 1.5s infinite}
+#aiPanel{position:fixed;right:22px;bottom:96px;width:392px;height:540px;background:var(--card);border-radius:20px;box-shadow:0 22px 60px rgba(0,0,0,.3);z-index:60;display:flex;flex-direction:column;overflow:hidden;animation:popIn .3s}
+.ai-head{background:linear-gradient(135deg,#0d5c46,#0f766e);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:11px}
+.ai-head .ai-ava{width:40px;height:40px;background:#fde68a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:21px}
+.ai-head b{font-size:15px;display:block}.ai-head small{font-size:11px;color:#a7f3d0}
+#aiClose{margin-left:auto;background:rgba(255,255,255,.2);border:none;color:#fff;width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:15px}
+#aiMsgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#f6faf8}
+#aiMsgs::-webkit-scrollbar{width:8px}#aiMsgs::-webkit-scrollbar-thumb{background:#cfe4db;border-radius:8px}
+.msg{max-width:85%;padding:10px 14px;border-radius:14px;font-size:13.5px;line-height:1.6;animation:popIn .25s}
+.msg.bot{background:#fff;border:1.5px solid #dbeee5;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.me{background:linear-gradient(135deg,#12795c,#0d5c46);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg.typing span{display:inline-block;width:7px;height:7px;background:#94a3b8;border-radius:50%;margin:0 2px;animation:tp 1s infinite}
+.msg.typing span:nth-child(2){animation-delay:.2s}.msg.typing span:nth-child(3){animation-delay:.4s}
+@keyframes tp{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.ai-chips{display:flex;gap:7px;padding:9px 14px;flex-wrap:wrap;background:#fff;border-top:1px solid var(--line)}
+.ai-chip{font-size:11.5px;background:var(--g50);border:1.5px solid #bbe7d2;color:var(--g700);border-radius:99px;padding:5px 12px;cursor:pointer;font-family:inherit;font-weight:600}
+.ai-chip:hover{background:var(--g100)}
+.ai-inputbar{display:flex;gap:9px;padding:12px 14px;background:#fff;border-top:1px solid var(--line)}
+.ai-inputbar input{flex:1;border:2px solid var(--line);border-radius:11px;padding:10px 13px;font-family:inherit;font-size:13.5px;outline:none}
+.ai-inputbar input:focus{border-color:var(--g600)}
+.ai-inputbar button{width:46px;border:none;border-radius:11px;background:var(--g600);color:#fff;font-size:17px;cursor:pointer}
+
+/* ============ TOAST & MODAL ============ */
+#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%) translateY(-140%);background:#0d5c46;color:#fff;padding:13px 26px;border-radius:999px;font-size:14.5px;font-weight:600;z-index:99;box-shadow:0 12px 30px rgba(0,0,0,.3);transition:transform .4s cubic-bezier(.2,1.4,.4,1);max-width:80vw;text-align:center}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.warn{background:#b45309} #toast.err{background:#b91c1c}
+#modalOv{position:fixed;inset:0;background:rgba(11,61,46,.55);z-index:95;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-card{background:#fff;border-radius:22px;padding:34px 40px;width:480px;text-align:center;box-shadow:var(--shadow);animation:popIn .35s;max-height:85vh;overflow-y:auto}
+.modal-card h3{color:var(--g700);font-size:21px;margin-bottom:12px}
+.modal-card p{font-size:14.5px;color:#334155;line-height:1.7}
+.modal-btns{display:flex;gap:12px;justify-content:center;margin-top:22px}
+.score-big{font-size:66px;font-weight:800;color:var(--g600);line-height:1;margin:8px 0}
+
+@media (max-width:1500px){ .sim-grid{grid-template-columns:290px 1fr 310px} .teori-grid{grid-template-columns:1fr} .teori-grid .span2{grid-column:span 1} .prof-wrap{grid-template-columns:1fr} .lkpd-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<!-- ==================== SPLASH SCREEN ==================== -->
+<div id="splash">
+  <div class="float-ico" style="left:8%;animation-delay:0s">🧪</div>
+  <div class="float-ico" style="left:22%;animation-delay:1.4s">⚛️</div>
+  <div class="float-ico" style="left:45%;animation-delay:.7s">💧</div>
+  <div class="float-ico" style="left:66%;animation-delay:2s">⚗️</div>
+  <div class="float-ico" style="left:84%;animation-delay:.3s">🧫</div>
+  <div class="float-ico" style="left:93%;animation-delay:2.6s">🔬</div>
+  <div class="flask-wrap">
+    <svg viewBox="0 0 120 140" width="150">
+      <path d="M48 8 h24 v6 h-6 v34 l30 62 a12 12 0 0 1 -11 18 H35 a12 12 0 0 1 -11 -18 l30 -62 V14 h-6 z" fill="rgba(255,255,255,.16)" stroke="#fde68a" stroke-width="3.5" stroke-linejoin="round"/>
+      <clipPath id="flaskClip"><path d="M27 84 h66 l9 18.5 a12 12 0 0 1 -10 19.5 H28 a12 12 0 0 1 -10 -19.5 z"/></clipPath>
+      <g clip-path="url(#flaskClip)">
+        <rect x="0" y="96" width="120" height="50" fill="#34d399" opacity=".9">
+          <animate attributeName="y" values="104;96;104" dur="2.4s" repeatCount="indefinite"/>
+        </rect>
+        <circle cx="45" cy="100" r="4" fill="#a7f3d0"><animate attributeName="cy" values="112;88" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="1.6s" repeatCount="indefinite"/></circle>
+        <circle cx="62" cy="100" r="3" fill="#a7f3d0"><animate attributeName="cy" values="112;86" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="2s" repeatCount="indefinite"/></circle>
+        <circle cx="78" cy="100" r="5" fill="#a7f3d0"><animate attributeName="cy" values="112;90" dur="1.3s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;0" dur="1.3s" repeatCount="indefinite"/></circle>
+      </g>
+    </svg>
+  </div>
+  <h1>LABORATORIUM MAYA <span>KIMIA</span></h1>
+  <h2>Stoikiometri — Pereaksi Pembatas</h2>
+  <div class="meta">🔬 IPA Kelas X • Fase E • Kurikulum Merdeka</div>
+  <div id="splashBarWrap"><div id="splashBar"></div></div>
+  <button id="splashStart" class="hidden">🚀 Masuk Laboratorium</button>
+  <div class="src">Materi mengacu pada Buku <i>Ilmu Pengetahuan Alam untuk SMA Kelas X</i>, Pusat Kurikulum dan Perbukuan, Kemendikbudristek (2021) — Bab 4: Hukum Dasar Kimia di Sekitar Kita</div>
+</div>
+
+<!-- ==================== LOGIN ==================== -->
+<div id="loginView" class="hidden">
+  <div class="login-card" id="loginCard">
+    <div class="ava">👩‍🎓</div>
+    <h2>Login Siswa</h2>
+    <p>Selamat datang di Lab Maya Kimia!<br>Silakan identifikasi diri Anda terlebih dahulu.</p>
+    <label>👤 Nama Lengkap</label>
+    <input type="text" id="inpNama" placeholder="Contoh: Ahmad Fauzi" autocomplete="off">
+    <label>🏫 Kelas</label>
+    <select id="inpKelas">
+      <option value="">— Pilih Kelas —</option>
+      <option>X-1</option><option>X-2</option><option>X-3</option><option>X-4</option>
+      <option>X-5</option><option>X-6</option><option>X-7</option><option>X-8</option>
+    </select>
+    <button class="btn-main" id="btnLogin">🧪 Masuk ke Lab Maya</button>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div id="appView" class="hidden">
+  <header>
+    <div class="logo-badge">⚗️</div>
+    <div class="ttl"><b>Lab Maya Kimia — Stoikiometri</b><small>Pereaksi Pembatas • Fase E • SMA Kelas X</small></div>
+    <div class="hspace"></div>
+    <div class="chip-user">👨‍🎓 <span id="userNameChip">Siswa</span></div>
+    <button class="hbtn" id="btnSound" title="Suara: Aktif">🔊</button>
+    <button class="hbtn" id="btnFull" title="Layar Penuh">⛶</button>
+    <button class="hbtn reset" id="btnResetAll" title="Reset Semua">↺</button>
+  </header>
+
+  <nav>
+    <button class="tab-btn active" data-tab="teori">📖 Teori</button>
+    <button class="tab-btn" data-tab="prosedur">📝 Prosedur</button>
+    <button class="tab-btn" data-tab="simulasi">⚗️ Simulasi</button>
+    <button class="tab-btn" data-tab="lkpd">📋 LKPD</button>
+    <button class="tab-btn" data-tab="evaluasi">✅ Evaluasi</button>
+    <button class="tab-btn" data-tab="profil">👩‍🏫 Profil</button>
+  </nav>
+
+  <main>
+    <!-- ============ TEORI ============ -->
+    <section class="tab-panel active" id="panel-teori">
+      <div class="teori-grid">
+        <div class="card">
+          <h3><span class="ic">🔥</span>A. Ciri-ciri &amp; Persamaan Reaksi Kimia</h3>
+          <p>Reaksi kimia adalah proses perubahan zat menjadi zat baru dengan sifat berbeda. Empat ciri reaksi kimia:</p>
+          <div class="char-grid">
+            <div class="char-item"><b>💡 Perubahan energi panas &amp; cahaya</b>Contoh: pembakaran fospor kembang api</div>
+            <div class="char-item"><b>🎨 Perubahan warna</b>Contoh: perkaratan besi menjadi merah kecoklatan</div>
+            <div class="char-item"><b>🥛 Pembentukan endapan</b>Contoh: endapan putih CaCO₃</div>
+            <div class="char-item"><b>💨 Timbulnya gas</b>Contoh: gas CO₂ pada fermentasi</div>
+          </div>
+          <p style="margin-top:12px">Dalam <b>persamaan reaksi</b>, zat di kiri tanda panah adalah <b>pereaksi (reaktan)</b>, di kanan adalah <b>hasil reaksi (produk)</b>. Angka di depan lambang zat disebut <b>koefisien reaksi</b>, yang menyatakan <b>jumlah mol</b> zat tersebut.</p>
+          <div class="eq">1 P₄(s) + 5 O₂(g) → 2 P₂O₅(g)</div>
+          <p style="font-size:13px;color:var(--muted)">Koefisien 1, 5, dan 2 = perbandingan mol pereaksi : produk.</p>
+        </div>
+
+        <div class="card">
+          <h3><span class="ic">⚖️</span>B. Hukum Kekekalan Massa (Hukum Lavoisier)</h3>
+          <p>"<b>Dalam ruang tertutup, massa zat sebelum dan sesudah reaksi adalah sama.</b>" Massa zat tidak dapat diciptakan maupun dimusnahkan dalam reaksi kimia (Antoine Lavoisier, bapak kimia modern).</p>
+          <div class="note">📘 <b>Contoh dari buku teks (Bab 4):</b> Seorang siswa memanaskan <b>10 gram serbuk Zn</b> dengan <b>2 gram serbuk belerang (S)</b>. Terbentuk endapan hitam <b>ZnS sebanyak 6,08 gram</b> dan sisa Zn yang tidak bereaksi <b>5,92 gram</b>.
+          <br><br>• Zn yang bereaksi = 10 − 5,92 = <b>4,08 g</b><br>• Massa sebelum reaksi = 4,08 + 2 = <b>6,08 g</b><br>• Massa sesudah reaksi = <b>6,08 g</b> ✅ <i>massa kekal!</i></div>
+          <div class="eq">Zn(s) + S(s) → ZnS(s)</div>
+        </div>
+
+        <div class="card">
+          <h3><span class="ic">🔢</span>C. Mol &amp; Bilangan Avogadro</h3>
+          <p><b>Mol</b> adalah satuan jumlah zat. Menurut Avogadro, pada suhu dan tekanan sama, volume gas berbeda memiliki jumlah partikel yang sama.</p>
+          <div class="eq">N<sub>A</sub> = 6,022 × 10²³ partikel / mol</div>
+          <ul style="padding-left:22px;margin-top:6px">
+            <li>1 mol zat setara dengan <b>Ar atau Mr</b> zat tersebut (dalam gram).</li>
+            <li>Contoh: Mr H₂O = 2×(1) + 1×(16) = 18 → massa 1 mol H₂O = <b>18 gram</b>.</li>
+            <li><b>Koefisien reaksi = perbandingan mol</b> zat dalam persamaan reaksi.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border:2.5px solid #bbe7d2">
+          <h3><span class="ic">🎯</span>D. Pereaksi Pembatas <span class="pill a">Inti Materi</span></h3>
+          <p>Dalam reaksi nyata, pereaksi jarang tersedia dalam perbandingan stoikiometri yang tepat. Maka:</p>
+          <ul style="padding-left:22px;margin-top:6px">
+            <li><b style="color:var(--coral)">Pereaksi pembatas</b> = pereaksi yang <b>habis terlebih dahulu</b>; menentukan <b>jumlah maksimum produk</b> yang terbentuk.</li>
+            <li><b style="color:var(--sky)">Pereaksi berlebih</b> = pereaksi yang <b>bersisa</b> setelah reaksi berakhir.</li>
+          </ul>
+          <p style="margin-top:8px"><b>Cara menentukan:</b> bagi mol setiap pereaksi dengan <b>koefisiennya</b> → nilai <b>terkecil</b> = pereaksi pembatas!</p>
+          <div class="note">🧪 <b>Contoh:</b> N₂ + 3H₂ → 2NH₃, direaksikan <b>2 mol N₂</b> dan <b>3 mol H₂</b>.<br>
+          ① Bandingkan: N₂/1 = <b>2</b> &nbsp;|&nbsp; H₂/3 = <b>1</b><br>
+          ② Nilai terkecil = 1 → <b>H₂ pereaksi pembatas</b><br>
+          ③ NH₃ terbentuk = (3/3) × 2 = <b>2 mol</b><br>
+          ④ N₂ bereaksi = 1 mol → sisa N₂ = 2 − 1 = <b>1 mol (berlebih)</b></div>
+        </div>
+
+        <div class="card span2" style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5)">
+          <h3><span class="ic">📌</span>Intisari</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 26px">
+            <p>✔ Dalam ruang tertutup, massa zat sebelum dan sesudah reaksi adalah <b>sama</b> (Hukum Lavoisier).</p>
+            <p>✔ 1 mol = <b>6,022 × 10²³ partikel</b>; 1 mol zat setara dengan <b>Ar atau Mr</b> zat.</p>
+            <p>✔ <b>Pereaksi pembatas</b> habis terlebih dahulu dan <b>menentukan jumlah produk maksimum</b>.</p>
+            <p>✔ <b>Pereaksi berlebih</b> tersisa setelah reaksi selesai; nilainya = mol awal − mol yang bereaksi.</p>
+            <p>✔ Koefisien reaksi menyatakan <b>perbandingan mol</b> zat dalam persamaan reaksi setara.</p>
+            <p>✔ Jika perbandingan mol pereaksi tepat sesuai koefisien, <b>keduanya habis tanpa sisa</b>.</p>
+          </div>
+        </div>
+      </div>
+      <p class="src">📚 Sumber materi: Ayuk Ratna P., Elizabeth T., &amp; Niken R.K. (2021). <i>Ilmu Pengetahuan Alam untuk SMA Kelas X</i>, Bab 4 "Hukum Dasar Kimia di Sekitar Kita", hlm. 75–104. Jakarta: Pusat Kurikulum dan Perbukuan, Kemendikbudristek.</p>
+    </section>
+
+    <!-- ============ PROSEDUR ============ -->
+    <section class="tab-panel" id="panel-prosedur">
+      <div style="max-width:1250px;margin:0 auto;display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start">
+        <div class="card">
+          <h3><span class="ic">🧭</span>Petunjuk Pelaksanaan Simulasi Virtual</h3>
+          <p style="margin-bottom:8px">Ikutilah langkah-langkah berikut secara berurutan untuk melakukan percobaan virtual <b>"Reaksi Sintesis Amonia"</b>:</p>
+          <ol class="step-list">
+            <li>Bacalah materi pada tab <b>📖 Teori</b> hingga memahami konsep hukum Lavoisier, mol, dan pereaksi pembatas.</li>
+            <li>Buka tab <b>⚗️ Simulasi</b>. Atur jumlah mol <b>N₂ (0–5 mol)</b> dan <b>H₂ (0–15 mol)</b> menggunakan <b>penggeser</b>. Perhatikan molekul-molekul yang muncul di dalam ruang reaksi!</li>
+            <li>Tekan tombol <b>⚡ Mulai Reaksi</b> dan amati animasi reaksi yang terjadi.</li>
+            <li>Amati panel <b>Hasil</b>: identifikasi <b style="color:var(--coral)">pereaksi pembatas</b>, jumlah <b>NH₃ yang terbentuk</b>, dan pereaksi yang <b>bersisa</b>. Baca pula uraian langkah perhitungannya!</li>
+            <li>Tekan tombol <b>📋 Rekam ke LKPD</b> untuk menyimpan data percobaan ke tabel LKPD.</li>
+            <li>Tekan <b>↺ Reset</b>, ulangi percobaan dengan <b>kombinasi mol yang berbeda (minimal 4 percobaan)</b>, termasuk kombinasi dengan perbandingan tepat 1 : 3.</li>
+            <li>Buka tab <b>📋 LKPD</b>, lengkapi identitas, jawab pertanyaan <b>analisis</b>, dan tuliskan <b>kesimpulan</b> percobaanmu.</li>
+            <li>Tekan tombol <b>⬇ Unduh PDF</b> pada LKPD untuk menyimpan laporan praktikum.</li>
+            <li>Uji pemahamanmu pada tab <b>✅ Evaluasi</b> (15 pertanyaan), lalu lihat nilai dan pembahasannya.</li>
+            <li>Gunakan <b>🤖 Asisten AI</b> (tombol oranye kanan-bawah) kapan pun kamu membutuhkan bantuan!</li>
+          </ol>
+          <div class="note">💡 <b>Tips:</b> Coba mulai dari kasus pada buku: N₂ + 3H₂ → 2NH₃ dengan 2 mol N₂ dan 3 mol H₂, lalu bandingkan dengan kombinasi lain (misal 1:3, 2:6, 3:3, 5:4) untuk menemukan pola pereaksi pembatas!</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card">
+            <h3><span class="ic">🧰</span>Alat &amp; Bahan Virtual</h3>
+            <p>🧪 Ruang reaksi digital<br>🎚️ Penggeser mol N₂ &amp; H₂<br>📊 Panel hasil &amp; perhitungan<br>📋 Tabel rekam LKPD<br>🌐 Molekul 3D NH₃ interaktif</p>
+          </div>
+          <div class="card" style="background:#fff7ed">
+            <h3 style="color:#9a3412"><span class="ic" style="background:#fed7aa">⚠️</span>Keselamatan &amp; Kedisiplinan</h3>
+            <p style="font-size:13px">Meski bersifat virtual, biasakan bersikap ilmiah: teliti, jujur mencatat data, dan bertanggung jawab. Dalam laboratorium nyata, reaksi sintesis amonia dilakukan pada tekanan tinggi sehingga memerlukan prosedur K3 ketat!</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SIMULASI ============ -->
+    <section class="tab-panel" id="panel-simulasi">
+      <div class="sim-grid">
+        <!-- Kontrol -->
+        <div class="sim-col">
+          <div class="panel">
+            <h4>🎚️ Panel Kontrol Pereaksi</h4>
+            <div class="slider-row">
+              <div class="sl-top"><span>🔵 Nitrogen — N₂</span><span class="sl-val" id="lblN2">2 mol</span></div>
+              <input type="range" id="rngN2" min="0" max="5" step="1" value="2">
+            </div>
+            <div class="slider-row">
+              <div class="sl-top"><span>⚪ Hidrogen — H₂</span><span class="sl-val" id="lblH2">4 mol</span></div>
+              <input type="range" id="rngH2" min="0" max="15" step="1" value="4">
+            </div>
+            <button class="btn btn-green" id="btnRun">⚡ Mulai Reaksi</button>
+            <button class="btn btn-ghost" id="btnSimReset" style="width:100%;justify-content:center;margin-top:9px">↺ Reset Simulasi</button>
+            <div id="simStatus">Atur mol pereaksi, lalu mulai reaksi 🔬</div>
+          </div>
+          <div class="panel" style="flex:1;display:flex;flex-direction:column">
+            <h4>🌐 Molekul 3D Produk: NH₃ (Amonia)</h4>
+            <div id="m3dScene"><div id="m3d"></div></div>
+            <div class="m3d-hint">🖱️ <b>Tarik (drag)</b> molekul untuk memutar — amati bentuk piramida amonia!</div>
+          </div>
+        </div>
+
+        <!-- Ruang reaksi -->
+        <div class="chamber">
+          <div class="eq-banner">N₂(g) &nbsp;+&nbsp; 3 H₂(g) &nbsp;⟶&nbsp; 2 NH₃(g)</div>
+          <div id="chamber"></div>
+          <div style="text-align:center;margin-top:10px;font-size:12.5px;color:var(--muted)">Ruang Reaksi Virtual — Sintesis Amonia (Haber-Bosch)</div>
+        </div>
+
+        <!-- Hasil -->
+        <div class="sim-col">
+          <div class="panel" style="flex:1;overflow-y:auto">
+            <h4>📊 Hasil &amp; Analisis Perhitungan</h4>
+            <div id="resBadge">— Belum ada reaksi —</div>
+            <div class="res-grid">
+              <div class="res-item"><span>NH₃ Terbentuk</span><b id="resNH3">–</b></div>
+              <div class="res-item"><span>Sisa N₂</span><b id="resSisaN2">–</b></div>
+              <div class="res-item"><span>Sisa H₂</span><b id="resSisaH2">–</b></div>
+            </div>
+            <ol class="res-steps" id="resSteps"></ol>
+            <button class="btn btn-amber" id="btnRecord" style="width:100%;justify-content:center;margin-top:12px" disabled>📋 Rekam ke LKPD</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ LKPD ============ -->
+    <section class="tab-panel" id="panel-lkpd">
+      <div class="lkpd-grid">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <h3><span class="ic">📋</span>Lembar Kerja Peserta Didik (LKPD)</h3>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Stoikiometri — Pereaksi Pembatas • Simulasi Sintesis Amonia (N₂ + 3H₂ → 2NH₃)</p>
+            <div style="display:grid;grid-template-columns:1fr 110px;gap:10px;font-size:13.5px">
+              <div><b>Nama:</b><br><span id="lkpdNama" style="color:var(--g700);font-weight:700">—</span></div>
+              <div><b>Kelas:</b><br><span id="lkpdKelas" style="color:var(--g700);font-weight:700">—</span></div>
+            </div>
+            <p style="margin-top:12px"><b>🎯 Tujuan:</b> Menentukan pereaksi pembatas, jumlah produk maksimum, dan pereaksi berlebih melalui simulasi reaksi N₂ + 3H₂ → 2NH₃, serta mengaitkannya dengan Hukum Kekekalan Massa (Lavoisier).</p>
+            <p style="margin-top:8px"><b>🧰 Alat &amp; Bahan Virtual:</b> Ruang reaksi digital, penggeser mol, panel analisis.</p>
+          </div>
+          <div class="card">
+            <h3><span class="ic">🗂️</span>Data Percobaan <span class="pill g" id="lkpdCount">0 data</span></h3>
+            <p style="font-size:12.5px;color:var(--muted)">Rekam data dari tab Simulasi dengan tombol <b>📋 Rekam ke LKPD</b> (minimal 4 percobaan).</p>
+          </div>
+          <div class="card">
+            <h3><span class="ic">✏️</span>Kesimpulan</h3>
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:6px">Tuliskan kesimpulan: bagaimana cara menentukan pereaksi pembatas dan mengapa ia menentukan jumlah produk? Kaitkan dengan Hukum Lavoisier!</p>
+            <textarea class="ana" id="inpKesimpulan" placeholder="Berdasarkan percobaan yang telah dilakukan, dapat disimpulkan bahwa ..."></textarea>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <h3><span class="ic">📊</span>Tabel Hasil Pengamatan</h3>
+            <div class="tbl-wrap">
+              <table class="lk">
+                <thead><tr><th>No</th><th>mol N₂</th><th>mol H₂</th><th>Pereaksi Pembatas</th><th>NH₃ Terbentuk (mol)</th><th>Pereaksi Bersisa</th><th>Aksi</th></tr></thead>
+                <tbody id="lkpdTbody"><tr><td colspan="7" style="color:var(--muted);padding:20px">Belum ada data — lakukan simulasi lalu tekan "📋 Rekam ke LKPD"</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3><span class="ic">🔎</span>Pertanyaan Analisis</h3>
+            <div class="ana-q">1. Berdasarkan data percobaan, bagaimana cara menentukan pereaksi pembatas? Jelaskan metode perbandingan (mol ÷ koefisien)!</div>
+            <textarea class="ana" id="ana1" placeholder="Jawabanmu ..."></textarea>
+            <div class="ana-q">2. Mengapa pereaksi pembatas menentukan jumlah maksimum produk yang terbentuk? Jelaskan berdasarkan perbandingan mol pada persamaan reaksi!</div>
+            <textarea class="ana" id="ana2" placeholder="Jawabanmu ..."></textarea>
+            <div class="ana-q">3. Jika jumlah N₂ dan H₂ tepat berbanding 1 : 3, apa yang terjadi pada kedua pereaksi? Hukum dasar kimia apa yang terkait dengan hal tersebut?</div>
+            <textarea class="ana" id="ana3" placeholder="Jawabanmu ..."></textarea>
+            <div class="ana-q">4. Berikan satu contoh penerapan konsep pereaksi pembatas dalam kehidupan sehari-hari (misalnya di dapur, industri, atau pertanian)!</div>
+            <textarea class="ana" id="ana4" placeholder="Jawabanmu ..."></textarea>
+            <div class="lk-actions">
+              <button class="btn btn-green" id="btnLKPDF">⬇ Unduh LKPD (PDF)</button>
+              <button class="btn btn-red" id="btnLKPDReset">🗑️ Reset LKPD</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVALUASI ============ -->
+    <section class="tab-panel" id="panel-evaluasi">
+      <div class="eval-wrap">
+        <div class="card" style="background:linear-gradient(135deg,#0d5c46,#0f766e);color:#fff;text-align:center;padding:20px">
+          <h3 style="color:#fde68a;justify-content:center">✅ Evaluasi Pemahaman — 15 Pertanyaan</h3>
+          <p style="color:#d1fae5;font-size:13.5px">Tipe soal: <b>pilihan ganda</b> (no. 1–8, pilih 1 jawaban) • <b>centang</b> (no. 9–11, pilih semua jawaban benar) • <b>paragraf rumpang</b> (no. 12–15, lengkapi bagian kosong). Nilai = jawaban benar/15 × 100.</p>
+        </div>
+        <div id="evalList"></div>
+        <div class="eval-bar">
+          <button class="btn btn-green" id="btnEvalSubmit" style="font-size:16px;padding:14px 34px">📨 Kumpulkan &amp; Nilai</button>
+          <button class="btn btn-red" id="btnEvalReset">↺ Ulangi Evaluasi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROFIL ============ -->
+    <section class="tab-panel" id="panel-profil">
+      <div class="prof-wrap">
+        <div class="prof-photo">
+          <img id="devPhoto" src="./asset/img/profil.jpg" alt="Foto Pengembang"
+               onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,'+encodeURIComponent('<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 200 200&quot;><rect width=&quot;200&quot; height=&quot;200&quot; rx=&quot;100&quot; fill=&quot;#0d5c46&quot;/><circle cx=&quot;100&quot; cy=&quot;80&quot; r=&quot;36&quot; fill=&quot;#fde68a&quot;/><path d=&quot;M40 190c0-38 27-60 60-60s60 22 60 60z&quot; fill=&quot;#fde68a&quot;/><text x=&quot;100&quot; y=&quot;35&quot; text-anchor=&quot;middle&quot; font-size=&quot;22&quot;>⚗️</text></svg>');">
+          <h3>Hilda Khurota Akyun, S.TP., Gr.</h3>
+          <span class="pill g">Pengembang Lab Maya</span>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px">💡 Foto dapat diganti: letakkan file <b>profil.jpg</b><br>pada folder <code>./asset/img/</code></p>
+        </div>
+        <div class="prof-info">
+          <h3>👩‍🏫 Profil Pengembang</h3>
+          <div class="info-row"><span class="ic2">👤</span><span><b>Nama</b> &nbsp;: Hilda Khurota Akyun, S.TP., Gr.</span></div>
+          <div class="info-row"><span class="ic2">🏫</span><span><b>Instansi</b> &nbsp;: SMA Al-Mukmin Boarding School</span></div>
+          <div class="info-row"><span class="ic2">📧</span><span><b>Email</b> &nbsp;: hildaakyun@gmail.com</span></div>
+          <div class="info-row"><span class="ic2">🎯</span><span><b>Mata Pelajaran</b> &nbsp;: Ilmu Pengetahuan Alam (Kimia) — Fase E, Kelas X</span></div>
+          <div class="info-row"><span class="ic2">📚</span><span><b>Sumber Materi</b> &nbsp;: Buku IPA SMA Kelas X, Pusat Kurikulum &amp; Perbukuan, Kemendikbudristek 2021 (Bab 4)</span></div>
+          <div class="info-row" style="border:none"><span class="ic2">🛠️</span><span><b>Teknologi</b> &nbsp;: HTML5 + CSS3 + JavaScript murni (standalone), ilustrasi &amp; aset visual dibuat dengan bantuan AI, efek suara Web Audio API, molekul 3D CSS, PDF jsPDF</span></div>
+          <div class="note" style="margin-top:16px">🌟 <b>Deskripsi Media:</b> Laboratorium maya ini membantu peserta didik memvisualisasikan konsep <b>stoikiometri dan pereaksi pembatas</b> melalui simulasi reaksi sintesis amonia yang interaktif, dilengkapi LKPD terpadu, evaluasi otomatis, dan asisten AI pembelajar.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ==================== AI ASSISTANT ==================== -->
+<button id="aiFab" class="hidden">🤖<span class="dot"></span></button>
+<div id="aiPanel" class="hidden">
+  <div class="ai-head">
+    <div class="ai-ava">🤖</div>
+    <div><b>Kimi — Asisten AI Kimia</b><small>● Siap membantu belajarmu</small></div>
+    <button id="aiClose">✕</button>
+  </div>
+  <div id="aiMsgs"></div>
+  <div class="ai-chips">
+    <button class="ai-chip" data-q="Apa itu pereaksi pembatas?">Pereaksi pembatas itu apa?</button>
+    <button class="ai-chip" data-q="Bagaimana cara menghitung pereaksi pembatas?">Cara menghitungnya?</button>
+    <button class="ai-chip" data-q="Bagaimana cara menggunakan simulasi?">Cara pakai simulasi?</button>
+    <button class="ai-chip" data-q="Jelaskan hukum Lavoisier!">Hukum Lavoisier?</button>
+  </div>
+  <div class="ai-inputbar">
+    <input type="text" id="aiInput" placeholder="Tulis pertanyaanmu di sini ...">
+    <button id="aiSend">➤</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<div id="modalOv" class="hidden"><div class="modal-card" id="modalCard"></div></div>
+
+<script>
+/* ================================================================
+   LAB MAYA KIMIA — STOIKIOMETRI: PEREAKSI PEMBATAS
+   Pengembang: Hilda Khurota Akyun, S.TP., Gr. — SMA Al-Mukmin Boarding School
+================================================================ */
+
+/* ---------------- AUDIO (Web Audio API) ---------------- */
+let audioCtx = null, soundOn = true;
+function ensureAudio(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function tone(freq,dur,type='sine',vol=.14,when=0){
+  if(!audioCtx) return;
+  const t = audioCtx.currentTime + when;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(vol,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t); o.stop(t+dur+.05);
+}
+function sweep(f1,f2,dur,vol=.1){
+  if(!audioCtx) return;
+  const t = audioCtx.currentTime;
+  const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+  o.type='sine'; o.frequency.setValueAtTime(f1,t); o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t+dur+.05);
+}
+function sfx(k){
+  if(!soundOn) return; ensureAudio(); if(!audioCtx) return;
+  switch(k){
+    case 'click': tone(620,.07,'sine',.12); break;
+    case 'tab': tone(480,.08,'triangle',.1); tone(720,.1,'triangle',.08,.05); break;
+    case 'ok': tone(523,.14,'sine',.16); tone(659,.14,'sine',.16,.11); tone(784,.28,'sine',.16,.22); break;
+    case 'err': tone(280,.18,'sawtooth',.09); tone(190,.26,'sawtooth',.09,.14); break;
+    case 'pop': tone(880,.09,'sine',.12); tone(1175,.12,'sine',.1,.06); break;
+    case 'react': for(let i=0;i<9;i++) tone(260+Math.random()*520,.09,'sine',.05,i*.12); sweep(200,900,1.2,.05); break;
+    case 'whoosh': sweep(1200,300,.35,.08); break;
+    case 'login': tone(523,.12,'sine',.15); tone(659,.12,'sine',.15,.1); tone(784,.12,'sine',.15,.2); tone(1047,.35,'sine',.15,.3); break;
+  }
+}
+
+/* ---------------- TOAST & MODAL ---------------- */
+const toastEl = document.getElementById('toast');
+let toastT;
+function toast(msg,type='ok'){
+  toastEl.textContent = msg; toastEl.className = type==='warn'?'warn':type==='err'?'err':'';
+  toastEl.classList.add('show'); clearTimeout(toastT);
+  toastT = setTimeout(()=>toastEl.classList.remove('show'), 2800);
+}
+const modalOv = document.getElementById('modalOv'), modalCard = document.getElementById('modalCard');
+function showModal(html){ modalCard.innerHTML = html; modalOv.classList.remove('hidden'); }
+function closeModal(){ modalOv.classList.add('hidden'); }
+modalOv.addEventListener('click', e=>{ if(e.target===modalOv) closeModal(); });
+
+/* ---------------- STATE ---------------- */
+const state = {
+  student:{nama:'',kelas:''},
+  sim:{ nN2:2, nH2:4, running:false, done:false, result:null },
+  lkpd:{ trials:[] },
+  eval:{ submitted:false, answers:{} }
+};
+
+/* ---------------- SPLASH → LOGIN → APP ---------------- */
+const splash=document.getElementById('splash'), splashBar=document.getElementById('splashBar'), splashStart=document.getElementById('splashStart');
+let sp=0;
+const spInt = setInterval(()=>{ sp=Math.min(sp+Math.random()*13,100); splashBar.style.width=sp+'%';
+  if(sp>=100){ clearInterval(spInt); splashStart.classList.remove('hidden'); sfx('pop'); } },220);
+
+splashStart.addEventListener('click',()=>{
+  sfx('whoosh');
+  splash.style.transition='opacity .6s, transform .6s'; splash.style.opacity=0; splash.style.transform='scale(1.08)';
+  setTimeout(()=>{ splash.classList.add('hidden');
+    document.getElementById('loginView').classList.remove('hidden'); },600);
+});
+
+document.getElementById('btnLogin').addEventListener('click',doLogin);
+document.getElementById('inpNama').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+function doLogin(){
+  const n=document.getElementById('inpNama').value.trim(), k=document.getElementById('inpKelas').value;
+  if(!n || !k){
+    sfx('err');
+    document.getElementById('loginCard').classList.add('shake');
+    setTimeout(()=>document.getElementById('loginCard').classList.remove('shake'),450);
+    toast('⚠️ Nama dan kelas wajib diisi!','warn'); return;
+  }
+  state.student={nama:n,kelas:k};
+  sfx('login');
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  document.getElementById('aiFab').classList.remove('hidden');
+  document.getElementById('userNameChip').textContent = n+' • '+k;
+  document.getElementById('lkpdNama').textContent = n;
+  document.getElementById('lkpdKelas').textContent = k;
+  renderChamber('before');
+  toast('🎉 Selamat datang, '+n+'! Selamat belajar di Lab Maya Kimia.');
+}
+
+/* ---------------- TABS ---------------- */
+document.querySelectorAll('.tab-btn').forEach(b=>{
+  b.addEventListener('click',()=>{
+    sfx('tab');
+    document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('panel-'+b.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------------- HEADER BTNS ---------------- */
+document.getElementById('btnSound').addEventListener('click',function(){
+  soundOn=!soundOn; this.textContent = soundOn?'🔊':'🔇'; sfx('click');
+  toast(soundOn?'🔊 Efek suara diaktifkan':'🔇 Efek suara dimatikan');
+});
+document.getElementById('btnFull').addEventListener('click',()=>{
+  sfx('click');
+  if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); }
+  else{ document.exitFullscreen&&document.exitFullscreen(); }
+});
+document.getElementById('btnResetAll').addEventListener('click',()=>{
+  sfx('click');
+  showModal(`<h3>↺ Reset Semua Data?</h3><p>Seluruh isi LKPD, data simulasi, dan jawaban evaluasi akan dihapus. Tindakan ini tidak dapat dibatalkan.</p>
+    <div class="modal-btns"><button class="btn btn-red" onclick="doResetAll()">Ya, Reset Semua</button>
+    <button class="btn btn-ghost" onclick="closeModal()">Batal</button></div>`);
+});
+window.doResetAll=function(){
+  closeModal(); sfx('whoosh');
+  state.lkpd.trials=[]; renderLKPDTable();
+  ['ana1','ana2','ana3','ana4','inpKesimpulan'].forEach(id=>document.getElementById(id).value='');
+  resetSim(); resetEval();
+  toast('✅ Semua data berhasil direset ke awal.');
+};
+
+/* ================================================================
+   SIMULASI
+================================================================ */
+const SVG = {
+  n2:`<svg viewBox="0 0 66 40"><circle cx="22" cy="20" r="14.5" fill="#3b82f6" stroke="#1e40af" stroke-width="2.5"/><circle cx="44" cy="20" r="14.5" fill="#3b82f6" stroke="#1e40af" stroke-width="2.5"/><text x="22" y="25.5" text-anchor="middle" fill="#fff" font-weight="bold" font-size="15" font-family="Poppins,sans-serif">N</text><text x="44" y="25.5" text-anchor="middle" fill="#fff" font-weight="bold" font-size="15" font-family="Poppins,sans-serif">N</text></svg>`,
+  h2:`<svg viewBox="0 0 48 34"><circle cx="15" cy="17" r="10.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/><circle cx="33" cy="17" r="10.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/><text x="15" y="21.5" text-anchor="middle" fill="#334155" font-weight="bold" font-size="11.5" font-family="Poppins,sans-serif">H</text><text x="33" y="21.5" text-anchor="middle" fill="#334155" font-weight="bold" font-size="11.5" font-family="Poppins,sans-serif">H</text></svg>`,
+  nh3:`<svg viewBox="0 0 66 60"><line x1="33" y1="17" x2="15" y2="43" stroke="#94a3b8" stroke-width="3"/><line x1="33" y1="17" x2="33" y2="48" stroke="#94a3b8" stroke-width="3"/><line x1="33" y1="17" x2="51" y2="43" stroke="#94a3b8" stroke-width="3"/><circle cx="33" cy="16" r="13.5" fill="#3b82f6" stroke="#1e40af" stroke-width="2.5"/><text x="33" y="21.5" text-anchor="middle" fill="#fff" font-weight="bold" font-size="14" font-family="Poppins,sans-serif">N</text><circle cx="15" cy="45" r="9.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/><circle cx="33" cy="50" r="9.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/><circle cx="51" cy="45" r="9.5" fill="#f8fafc" stroke="#94a3b8" stroke-width="2.5"/><text x="15" y="49" text-anchor="middle" fill="#334155" font-weight="bold" font-size="10" font-family="Poppins,sans-serif">H</text><text x="33" y="54" text-anchor="middle" fill="#334155" font-weight="bold" font-size="10" font-family="Poppins,sans-serif">H</text><text x="51" y="49" text-anchor="middle" fill="#334155" font-weight="bold" font-size="10" font-family="Poppins,sans-serif">H</text></svg>`
+};
+const rngN2=document.getElementById('rngN2'), rngH2=document.getElementById('rngH2');
+function updateSliderLabels(){
+  document.getElementById('lblN2').textContent = state.sim.nN2+' mol';
+  document.getElementById('lblH2').textContent = state.sim.nH2+' mol';
+}
+function onSlider(){
+  state.sim.nN2 = +rngN2.value; state.sim.nH2 = +rngH2.value;
+  updateSliderLabels(); sfx('click');
+  if(!state.sim.running){ resetResultsUI(); renderChamber('before'); }
+}
+rngN2.addEventListener('input',onSlider);
+rngH2.addEventListener('input',onSlider);
+
+function renderChamber(mode){
+  const ch=document.getElementById('chamber');
+  const s=state.sim;
+  if(mode==='before'){
+    if(s.nN2===0 && s.nH2===0){
+      ch.innerHTML=`<div style="text-align:center;color:var(--muted);font-size:15px;font-weight:600">🫙 Ruang reaksi kosong.<br>Atur jumlah mol N₂ dan H₂ terlebih dahulu!</div>`; return;
+    }
+    let icons='';
+    for(let i=0;i<s.nN2;i++) icons+=`<div class="molwrap" data-type="n2" data-idx="${i}">${SVG.n2}</div>`;
+    for(let i=0;i<s.nH2;i++) icons+=`<div class="molwrap" data-type="h2" data-idx="${i}">${SVG.h2}</div>`;
+    ch.innerHTML=`
+      <div class="mol-group"><div class="mol-group-title">⚗️ Pereaksi (Reaktan)</div>
+        <div class="mol-icons">${icons}</div>
+        <div class="mol-caption">🔵 ${s.nN2} mol N₂ &nbsp;+&nbsp; ⚪ ${s.nH2} mol H₂</div></div>
+      <div class="arrow-big">➜</div>
+      <div class="mol-group"><div class="mol-group-title">🧴 Produk</div>
+        <div class="ghost-q">?</div>
+        <div class="mol-caption">Belum bereaksi</div></div>`;
+    document.getElementById('simStatus').textContent='Siap! Tekan ⚡ Mulai Reaksi 🔬';
+  } else if(mode==='after'){
+    const r=s.result;
+    let left='', right='';
+    for(let i=0;i<r.sisaN2;i++) left+=`<div class="molwrap dim">${SVG.n2}</div>`;
+    for(let i=0;i<r.sisaH2;i++) left+=`<div class="molwrap dim">${SVG.h2}</div>`;
+    if(!left) left=`<div style="color:#94a3b8;font-weight:700;font-size:13px;padding:14px">— HABIS SEMUA —<br><small>(perbandingan stoikiometri sempurna)</small></div>`;
+    for(let i=0;i<r.nh3;i++) right+=`<div class="molwrap" style="animation-delay:${i*0.07}s">${SVG.nh3}</div>`;
+    if(!right) right=`<div style="color:#94a3b8;font-weight:700">Tidak ada produk</div>`;
+    ch.innerHTML=`
+      <div class="mol-group"><div class="mol-group-title">🧊 Pereaksi Bersisa</div>
+        <div class="mol-icons">${left}</div>
+        <div class="mol-caption">Sisa: ${r.sisaN2} mol N₂ &nbsp;•&nbsp; ${r.sisaH2} mol H₂</div></div>
+      <div class="arrow-big" style="animation:none">✔</div>
+      <div class="mol-group"><div class="mol-group-title">✨ Produk Terbentuk</div>
+        <div class="mol-icons">${right}</div>
+        <div class="mol-caption">Terbentuk: ${r.nh3} mol NH₃ (amonia)</div></div>`;
+    document.getElementById('simStatus').textContent='Reaksi selesai! Periksa panel hasil ➜';
+  }
+}
+
+function computeSim(nN2,nH2){
+  const rN2=nN2/1, rH2=nH2/3;
+  const reactedN2=Math.min(nN2,nH2/3), reactedH2=reactedN2*3;
+  const nh3=reactedN2*2;
+  return {
+    reactedN2, reactedH2, nh3,
+    sisaN2: nN2-reactedN2, sisaH2: nH2-reactedH2,
+    limiting: rN2<rH2 ? 'N₂' : (rH2<rN2 ? 'H₂' : 'Sempurna (1:3 — tanpa sisa)')
+  };
+}
+
+document.getElementById('btnRun').addEventListener('click',()=>{
+  const s=state.sim;
+  if(s.running) return;
+  if(s.nN2===0||s.nH2===0){ sfx('err'); toast('⚠️ Set minimal 1 mol pada salah satu pereaksi!','warn'); return; }
+  s.running=true; sfx('react');
+  document.getElementById('btnRun').disabled=true;
+  document.getElementById('simStatus').textContent='⏳ Reaksi sedang berlangsung ... molekul bertumbukan!';
+  document.querySelectorAll('#chamber .molwrap[data-type]').forEach(el=>{
+    const t=el.dataset.type, i=+el.dataset.idx;
+    const rx = s.nN2===0?0:Math.min(s.nN2, s.nH2/3);
+    const rh = rx*3;
+    if((t==='n2'&&i<rx)||(t==='h2'&&i<rh)) el.classList.add('consuming');
+  });
+  setTimeout(()=>{
+    s.result=computeSim(s.nN2,s.nH2);
+    s.running=false; s.done=true;
+    renderChamber('after'); renderResults(); sfx('ok');
+    document.getElementById('btnRun').disabled=false;
+    document.getElementById('btnRecord').disabled=false;
+    toast('🎉 Reaksi selesai! Data siap direkam ke LKPD.');
+  },1700);
+});
+
+function renderResults(){
+  const s=state.sim, r=s.result;
+  const badge=document.getElementById('resBadge');
+  badge.classList.add('on');
+  badge.innerHTML = (r.limiting==='Sempurna (1:3 — tanpa sisa)')
+    ? '⚖️ Rasio Stoikiometri Sempurna — Kedua Pereaksi Habis!'
+    : '🎯 Pereaksi Pembatas: '+r.limiting+' &nbsp;|&nbsp; Pereaksi Berlebih: '+(r.limiting==='N₂'?'H₂':'N₂');
+  document.getElementById('resNH3').textContent=r.nh3+' mol';
+  document.getElementById('resSisaN2').textContent=r.sisaN2+' mol';
+  document.getElementById('resSisaH2').textContent=r.sisaH2+' mol';
+  const base = r.limiting==='N₂' ? s.nN2/1 : s.nH2/3;
+  const steps=[
+    `① Bandingkan mol ÷ koefisien → &nbsp;N₂: ${s.nN2}/1 = <b>${rN2txt(s.nN2)}</b> &nbsp;|&nbsp; H₂: ${s.nH2}/3 = <b>${(s.nH2/3)}</b>`,
+    (r.limiting==='Sempurna (1:3 — tanpa sisa)')
+      ? `② Nilai sama → kedua pereaksi habis bersamaan (rasio 1 : 3).`
+      : `② Nilai <b>terkecil</b> = ${Math.min(s.nN2/1, s.nH2/3)} → <b>${r.limiting} adalah pereaksi pembatas</b>.`,
+    `③ mol NH₃ = (${base}) × 2 = <b>${r.nh3} mol</b>`,
+    `④ Sisa pereaksi: N₂ = ${s.nN2} − ${r.reactedN2} = <b>${r.sisaN2} mol</b> ; H₂ = ${s.nH2} − ${r.reactedH2} = <b>${r.sisaH2} mol</b>`,
+    `⚖️ Cek Hukum Lavoisier: total mol atom N dan H sebelum = sesudah reaksi (massa kekal ✔)`
+  ];
+  function rN2txt(n){ return n; }
+  const ol=document.getElementById('resSteps'); ol.innerHTML='';
+  steps.forEach((st,i)=>{ const li=document.createElement('li'); li.innerHTML=st; ol.appendChild(li);
+    setTimeout(()=>{ li.classList.add('show'); sfx('click'); }, 250+i*380); });
+}
+function resetResultsUI(){
+  const b=document.getElementById('resBadge'); b.classList.remove('on'); b.textContent='— Belum ada reaksi —';
+  ['resNH3','resSisaN2','resSisaH2'].forEach(id=>document.getElementById(id).textContent='–');
+  document.getElementById('resSteps').innerHTML='';
+  document.getElementById('btnRecord').disabled=true;
+  document.getElementById('simStatus').textContent='Atur mol pereaksi, lalu mulai reaksi 🔬';
+}
+document.getElementById('btnSimReset').addEventListener('click',()=>{ sfx('whoosh'); resetSim(); toast('↺ Simulasi direset.'); });
+function resetSim(){
+  state.sim={nN2:2,nH2:4,running:false,done:false,result:null};
+  rngN2.value=2; rngH2.value=4; updateSliderLabels(); resetResultsUI(); renderChamber('before');
+}
+
+/* ---- Rekam ke LKPD ---- */
+document.getElementById('btnRecord').addEventListener('click',()=>{
+  const s=state.sim;
+  if(!s.done||!s.result){ sfx('err'); toast('⚠️ Jalankan reaksi terlebih dahulu!','warn'); return; }
+  if(state.lkpd.trials.length>=10){ toast('📊 Maksimal 10 data percobaan.','warn'); return; }
+  const r=s.result;
+  state.lkpd.trials.push({
+    no: state.lkpd.trials.length+1, nN2:s.nN2, nH2:s.nH2,
+    lim: r.limiting, nh3: r.nh3,
+    sisa: `N₂: ${r.sisaN2} mol • H₂: ${r.sisaH2} mol`
+  });
+  renderLKPDTable(); sfx('ok');
+  toast('✅ Data percobaan #'+state.lkpd.trials.length+' berhasil direkam ke LKPD!');
+});
+function renderLKPDTable(){
+  const tb=document.getElementById('lkpdTbody');
+  document.getElementById('lkpdCount').textContent=state.lkpd.trials.length+' data';
+  if(!state.lkpd.trials.length){
+    tb.innerHTML=`<tr><td colspan="7" style="color:var(--muted);padding:20px">Belum ada data — lakukan simulasi lalu tekan "📋 Rekam ke LKPD"</td></tr>`; return;
+  }
+  tb.innerHTML=state.lkpd.trials.map((t,i)=>`<tr>
+    <td>${t.no}</td><td>${t.nN2}</td><td>${t.nH2}</td>
+    <td style="font-weight:700;color:var(--coral)">${t.lim}</td>
+    <td style="font-weight:700;color:var(--g700)">${t.nh3}</td>
+    <td style="font-size:12px">${t.sisa}</td>
+    <td><button class="delrow" onclick="delTrial(${i})">✕</button></td></tr>`).join('');
+}
+window.delTrial=function(i){ state.lkpd.trials.splice(i,1); state.lkpd.trials.forEach((t,j)=>t.no=j+1); renderLKPDTable(); sfx('whoosh'); };
+document.getElementById('btnLKPDReset').addEventListener('click',()=>{
+  showModal(`<h3>🗑️ Reset LKPD?</h3><p>Tabel data, jawaban analisis, dan kesimpulan akan dikosongkan.</p>
+  <div class="modal-btns"><button class="btn btn-red" onclick="doLKPDReset()">Ya, Reset</button><button class="btn btn-ghost" onclick="closeModal()">Batal</button></div>`);
+});
+window.doLKPDReset=function(){
+  closeModal(); state.lkpd.trials=[]; renderLKPDTable(); sfx('whoosh');
+  ['ana1','ana2','ana3','ana4','inpKesimpulan'].forEach(id=>document.getElementById(id).value='');
+  toast('LKPD berhasil direset.');
+};
+
+/* ================================================================
+   MOLEKUL 3D (NH₃) — drag untuk rotasi
+================================================================ */
+(function initM3D(){
+  const scene=document.getElementById('m3dScene'), box=document.getElementById('m3d');
+  const atoms=[
+    {t:'N', x:0,   y:-26, z:0,  s:46, bg:'radial-gradient(circle at 32% 28%, #93c5fd, #2563eb 55%, #1e3a8a)'},
+    {t:'H', x:36,  y:20,  z:0,  s:30, bg:'radial-gradient(circle at 32% 28%, #ffffff, #cbd5e1 60%, #64748b)', c:'#334155'},
+    {t:'H', x:-18, y:20,  z:31, s:30, bg:'radial-gradient(circle at 32% 28%, #ffffff, #cbd5e1 60%, #64748b)', c:'#334155'},
+    {t:'H', x:-18, y:20,  z:-31,s:30, bg:'radial-gradient(circle at 32% 28%, #ffffff, #cbd5e1 60%, #64748b)', c:'#334155'}
+  ];
+  const bonds=[[0,1],[0,2],[0,3]];
+  bonds.forEach(([a,b])=>{
+    const p1=atoms[a], p2=atoms[b];
+    const dx=p2.x-p1.x, dy=p2.y-p1.y, dz=p2.z-p1.z;
+    const len=Math.hypot(dx,dy,dz);
+    const thz=Math.asin(dy/len), thy=Math.atan2(-dz,dx);
+    const d=document.createElement('div'); d.className='m3d-bond';
+    d.style.width=len+'px'; d.style.marginLeft=(-len/2)+'px'; d.style.marginTop='-3px';
+    d.style.transform=`translate3d(${(p1.x+p2.x)/2}px,${(p1.y+p2.y)/2}px,${(p1.z+p2.z)/2}px) rotateY(${thy}rad) rotateZ(${thz}rad)`;
+    box.appendChild(d);
+  });
+  atoms.forEach(a=>{
+    const d=document.createElement('div'); d.className='m3d-atom';
+    d.style.width=d.style.height=a.s+'px';
+    d.style.marginLeft=d.style.marginTop=(-a.s/2)+'px';
+    d.style.background=a.bg; d.style.fontSize=(a.s*.42)+'px';
+    d.style.color=a.c||'#fff';
+    d.style.transform=`translate3d(${a.x}px,${a.y}px,${a.z}px)`;
+    d.textContent=a.t; box.appendChild(d);
+  });
+  let rx=-14, ry=28, drag=false, lx=0, ly=0;
+  scene.addEventListener('pointerdown',e=>{ drag=true; lx=e.clientX; ly=e.clientY; scene.setPointerCapture(e.pointerId); });
+  scene.addEventListener('pointermove',e=>{ if(!drag) return; ry+=(e.clientX-lx)*.55; rx-=(e.clientY-ly)*.55; rx=Math.max(-80,Math.min(80,rx)); lx=e.clientX; ly=e.clientY; });
+  scene.addEventListener('pointerup',()=>drag=false);
+  scene.addEventListener('pointercancel',()=>drag=false);
+  (function loop(){ if(!drag) ry+=.35; box.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`; requestAnimationFrame(loop); })();
+})();
+
+/* ================================================================
+   EVALUASI — 15 soal (8 PG + 3 centang + 4 rumpang)
+================================================================ */
+const QUESTIONS=[
+ {t:'mc',q:'Pereaksi yang habis terlebih dahulu dalam suatu reaksi kimia sehingga menentukan jumlah maksimum produk yang terbentuk disebut ...',o:['Pereaksi berlebih','Pereaksi pembatas','Katalis','Produk'],a:1},
+ {t:'mc',q:'Hukum yang menyatakan "dalam ruang tertutup, massa zat sebelum dan sesudah reaksi adalah sama" dikemukakan oleh ...',o:['John Dalton','Antoine Lavoisier','Joseph Proust','Joseph Gay Lussac'],a:1},
+ {t:'mc',q:'Pada reaksi N₂(g) + 3H₂(g) → 2NH₃(g), jika direaksikan 2 mol N₂ dengan 3 mol H₂, maka pereaksi pembatasnya adalah ...',o:['N₂','H₂','NH₃','Tidak ada pereaksi pembatas'],a:1},
+ {t:'mc',q:'Dari kasus pada soal nomor 3, jumlah NH₃ yang terbentuk adalah ...',o:['1 mol','2 mol','3 mol','4 mol'],a:1},
+ {t:'mc',q:'Dari kasus pada soal nomor 3, sisa N₂ setelah reaksi selesai adalah ...',o:['0 mol','1 mol','2 mol','3 mol'],a:1},
+ {t:'mc',q:'Pada reaksi 2H₂(g) + O₂(g) → 2H₂O(g), jika direaksikan 4 mol H₂ dengan 3 mol O₂, pereaksi pembatasnya adalah ...',o:['H₂, karena 4/2 = 2 lebih kecil dari 3/1 = 3','O₂, karena 3/1 lebih besar dari 4/2','H₂O','Kedua pereaksi habis bersamaan'],a:0},
+ {t:'mc',q:'Dari kasus pada soal nomor 6, jumlah H₂O yang terbentuk adalah ...',o:['2 mol','3 mol','4 mol','6 mol'],a:2},
+ {t:'mc',q:'Satu mol zat mengandung partikel (Bilangan Avogadro) sebanyak ...',o:['6,022 × 10²³ partikel','6,022 × 10⁻²³ partikel','3,14 × 10²³ partikel','6022 partikel'],a:0},
+ {t:'cb',q:'Pilihlah SEMUA pernyataan yang BENAR tentang pereaksi pembatas! (jawaban lebih dari satu)',o:['Habis terkonsumsi sebelum reaksi berakhir','Menentukan jumlah maksimum produk yang terbentuk','Memiliki nilai mol ÷ koefisien paling kecil','Selalu merupakan pereaksi dengan massa paling besar','Selalu habis berubah menjadi produk secara utuh'],a:[0,1,2]},
+ {t:'cb',q:'Manakah yang termasuk hukum dasar kimia? (jawaban lebih dari satu)',o:['Hukum kekekalan massa (Lavoisier)','Hukum perbandingan tetap (Proust)','Hukum perbandingan berganda (Dalton)','Hukum gerak Newton','Hukum Ohm'],a:[0,1,2]},
+ {t:'cb',q:'Pernyataan yang BENAR mengenai konsep mol dan koefisien reaksi adalah ... (jawaban lebih dari satu)',o:['1 mol = 6,022 × 10²³ partikel','1 mol zat setara dengan Ar atau Mr zat tersebut','Mr H₂O = 18, sehingga massa 1 mol H₂O = 18 gram','1 mol hanya berlaku untuk zat gas','Koefisien reaksi menyatakan perbandingan mol zat dalam persamaan reaksi'],a:[0,1,2,4]},
+ {t:'cz',q:'Lengkapilah paragraf rumpang berikut (soal no. 12–15):', html:`Dalam suatu reaksi kimia, pereaksi yang habis terlebih dahulu disebut pereaksi <b>(12)</b> <select id="cz12"><option value="">— pilih —</option><option>pembatas</option><option>berlebih</option><option>katalis</option><option>hasil reaksi</option></select>, sedangkan pereaksi yang tersisa setelah reaksi berakhir disebut pereaksi <b>(13)</b> <select id="cz13"><option value="">— pilih —</option><option>berlebih</option><option>pembatas</option><option>padat</option><option>netral</option></select>. Jumlah produk maksimum yang dapat terbentuk ditentukan oleh pereaksi <b>(14)</b> <select id="cz14"><option value="">— pilih —</option><option>berlebih</option><option>pembatas</option><option>semua pereaksi</option><option>yang massanya terbesar</option></select>. Sesuai dengan hukum <b>(15)</b> <select id="cz15"><option value="">— pilih —</option><option>Lavoisier</option><option>Newton</option><option>Boyle</option><option>Archimedes</option></select>, massa zat sebelum dan sesudah reaksi dalam ruang tertutup adalah sama.` , blankIds:['cz12','cz13','cz14','cz15'], blankAns:[0,0,1,0], blankOpts:[['pembatas','berlebih','katalis','hasil reaksi'],['berlebih','pembatas','padat','netral'],['berlebih','pembatas','semua pereaksi','yang massanya terbesar'],['Lavoisier','Newton','Boyle','Archimedes']]}
+];
+const CZ_ID_MAP={cz12:11,cz13:12,cz14:13,cz15:14}; // index in QUESTIONS for cloze card
+
+function buildEval(){
+  const list=document.getElementById('evalList'); list.innerHTML='';
+  QUESTIONS.forEach((q,i)=>{
+    const card=document.createElement('div'); card.className='qcard'; card.dataset.qi=i;
+    let inner=`<div class="qhead"><div class="qnum">${i+1}</div><div class="qtext">${q.q}</div></div>`;
+    if(q.t==='mc'){
+      inner+=`<div class="opts">`+q.o.map((o,j)=>`<label class="opt"><input type="radio" name="q${i}" value="${j}"><span>${o}</span></label>`).join('')+`</div>`;
+    } else if(q.t==='cb'){
+      inner+=`<div class="opts" style="grid-template-columns:1fr">`+q.o.map((o,j)=>`<label class="opt"><input type="checkbox" name="q${i}" value="${j}"><span>${o}</span></label>`).join('')+`</div>`;
+    } else {
+      inner+=`<div class="cloze-p">${q.html}</div>`;
+    }
+    card.innerHTML=inner; list.appendChild(card);
+  });
+}
+buildEval();
+
+document.getElementById('btnEvalSubmit').addEventListener('click',()=>{
+  if(state.eval.submitted){ toast('Evaluasi sudah dikumpulkan. Tekan "Ulangi Evaluasi" untuk mencoba lagi.','warn'); return; }
+  // pastikan semua terjawab
+  let unanswered=0;
+  QUESTIONS.forEach((q,i)=>{
+    if(q.t==='mc'){ if(!document.querySelector(`input[name="q${i}"]:checked`)) unanswered++; }
+    else if(q.t==='cb'){ if(!document.querySelector(`input[name="q${i}"]:checked`)) unanswered++; }
+    else { q.blankIds.forEach(id=>{ if(!document.getElementById(id).value) unanswered++; }); }
+  });
+  if(unanswered>0){ sfx('err'); toast('⚠️ Masih ada '+unanswered+' isian yang belum dijawab!','warn'); return; }
+  // nilai
+  let correct=0;
+  QUESTIONS.forEach((q,i)=>{
+    const card=document.querySelector(`.qcard[data-qi="${i}"]`); card.classList.add('graded');
+    if(q.t==='mc'){
+      const sel=document.querySelector(`input[name="q${i}"]:checked`);
+      const ok=(+sel.value===q.a);
+      if(ok) correct++;
+      card.querySelectorAll('.opt').forEach((opt,j)=>{
+        if(j===q.a) opt.classList.add('correct');
+        if(opt.contains(sel)&&!ok) opt.classList.add('wrongpick');
+      });
+    } else if(q.t==='cb'){
+      const chosen=[...document.querySelectorAll(`input[name="q${i}"]:checked`)].map(x=>+x.value).sort();
+      const ans=[...q.a].sort();
+      const ok = chosen.length===ans.length && chosen.every((v,k)=>v===ans[k]);
+      if(ok) correct++;
+      card.querySelectorAll('.opt').forEach((opt,j)=>{
+        const inp=opt.querySelector('input');
+        if(q.a.includes(j)) opt.classList.add('correct');
+        else if(inp.checked) opt.classList.add('wrongpick');
+      });
+    } else {
+      q.blankIds.forEach((id,k)=>{
+        const selEl=document.getElementById(id);
+        const ok=(selEl.selectedIndex-1)===q.blankAns[k];
+        if(ok) correct++;
+        selEl.classList.add(ok?'sel-ok':'sel-no');
+      });
+    }
+  });
+  const score=Math.round(correct/15*1000)/10;
+  state.eval.submitted=true;
+  const grade = score>=90?'Luar Biasa! 🌟':score>=75?'Baik! 👍':score>=60?'Cukup — terus berlatih 💪':'Perlu Belajar Lagi 📖';
+  sfx(score>=75?'ok':'err');
+  showModal(`<h3>📊 Hasil Evaluasi</h3>
+    <div class="score-big">${score}</div>
+    <p><b>${correct}</b> dari 15 pertanyaan benar</p>
+    <p style="margin-top:8px;font-weight:700;color:var(--g700);font-size:17px">${grade}</p>
+    <div class="modal-btns"><button class="btn btn-green" onclick="closeModal();document.getElementById('panel-evaluasi').scrollTop=0">🔍 Lihat Pembahasan</button>
+    <button class="btn btn-ghost" onclick="closeModal()">Tutup</button></div>`);
+  toast('📨 Evaluasi dikumpulkan! Nilaimu: '+score);
+});
+document.getElementById('btnEvalReset').addEventListener('click',()=>{
+  sfx('whoosh'); resetEval(); toast('↺ Evaluasi direset — selamat mencoba lagi!');
+});
+function resetEval(){
+  state.eval.submitted=false;
+  document.getElementById('evalList').innerHTML='';
+  QUESTIONS.forEach(q=>{ if(q.t==='cz'){ q.blankIds.forEach((id,k)=>{ /* rebuild happens below */ }); } });
+  buildEval();
+  document.getElementById('panel-evaluasi').scrollTop=0;
+}
+
+/* ================================================================
+   LKPD — UNDUH PDF (jsPDF + fallback cetak)
+================================================================ */
+document.getElementById('btnLKPDF').addEventListener('click',()=>{
+  sfx('click');
+  const nama=state.student.nama||'-', kelas=state.student.kelas||'-';
+  const tgl=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  const trials=state.lkpd.trials;
+  const anas=[1,2,3,4].map(i=>({q:document.querySelector(`.ana-q:nth-of-type(${i})`)?'':'',t:document.getElementById('ana'+i).value.trim()}));
+  const anaQs=[
+    '1. Bagaimana cara menentukan pereaksi pembatas berdasarkan data percobaan? (metode mol ÷ koefisien)',
+    '2. Mengapa pereaksi pembatas menentukan jumlah maksimum produk yang terbentuk?',
+    '3. Jika N₂ dan H₂ tepat berbanding 1 : 3, apa yang terjadi? Hukum dasar kimia apa yang terkait?',
+    '4. Contoh penerapan konsep pereaksi pembatas dalam kehidupan sehari-hari:'
+  ];
+  const anaVals=[1,2,3,4].map(i=>document.getElementById('ana'+i).value.trim());
+  const simpulan=document.getElementById('inpKesimpulan').value.trim();
+
+  if(window.jspdf && window.jspdf.jsPDF){
+    const {jsPDF}=window.jspdf;
+    const doc=new jsPDF('p','mm','a4');
+    const W=210; let y=0;
+    // Header band
+    doc.setFillColor(13,92,70); doc.rect(0,0,W,26,'F');
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(15);
+    doc.text('LKPD — STOIKIOMETRI: PEREAKSI PEMBATAS',W/2,11,{align:'center'});
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    doc.text('Laboratorium Maya Kimia | IPA Kelas X (Fase E) | Simulasi: N2 + 3H2 -> 2NH3',W/2,17.5,{align:'center'});
+    doc.text('Sumber: Buku IPA SMA Kelas X, Kemendikbudristek 2021 (Bab 4)',W/2,22.5,{align:'center'});
+    y=34;
+    doc.setTextColor(30,41,59); doc.setFont('helvetica','bold'); doc.setFontSize(11);
+    doc.text('A. IDENTITAS PESERTA DIDIK',14,y); y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10.5);
+    doc.text('Nama     : '+nama,18,y); y+=5.5;
+    doc.text('Kelas    : '+kelas,18,y); y+=5.5;
+    doc.text('Tanggal  : '+tgl,18,y); y+=9;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('B. TUJUAN PRAKTIKUM',14,y); y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    const tujuan=doc.splitTextToSize('Menentukan pereaksi pembatas, jumlah produk maksimum (NH3), dan pereaksi berlebih melalui simulasi reaksi N2 + 3H2 -> 2NH3, serta mengaitkannya dengan Hukum Kekekalan Massa (Lavoisier).',182);
+    doc.text(tujuan,18,y); y+=tujuan.length*5+6;
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('C. DATA HASIL PERCOBAAN',14,y); y+=7;
+    if(!trials.length){
+      doc.setFont('helvetica','italic'); doc.setFontSize(10); doc.text('(Belum ada data percobaan yang direkam)',18,y); y+=10;
+    } else {
+      const cols=[{x:14,w:10,t:'No'},{x:24,w:20,t:'mol N2'},{x:44,w:20,t:'mol H2'},{x:64,w:44,t:'Pereaksi Pembatas'},{x:108,w:26,t:'NH3 (mol)'},{x:134,w:62,t:'Pereaksi Bersisa'}];
+      const drawRow=(vals,fill)=>{
+        let h=8; doc.setFontSize(9);
+        vals.forEach((v,i)=>{ doc.setFillColor(...(fill?[18,121,92]:[255,255,255])); doc.rect(cols[i].x,y,cols[i].w,h,'FD');
+          if(fill){ doc.setTextColor(255); doc.setFont('helvetica','bold'); } else { doc.setTextColor(30); doc.setFont('helvetica','normal'); }
+          doc.text(String(v),cols[i].x+cols[i].w/2,y+5.4,{align:'center',maxWidth:cols[i].w-2}); });
+        y+=h;
+      };
+      drawRow(cols.map(c=>c.t),true);
+      trials.forEach((t,i)=>drawRow([t.no,t.nN2,t.nH2,t.lim,t.nh3,t.sisa],i%2===1));
+      y+=6;
+    }
+    if(y>240){ doc.addPage(); y=18; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('D. JAWABAN ANALISIS',14,y); y+=7;
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    anaQs.forEach((qq,i)=>{
+      if(y>262){ doc.addPage(); y=18; }
+      const qTxt=doc.splitTextToSize(qq,182); doc.setFont('helvetica','bold'); doc.text(qTxt,14,y); y+=qTxt.length*5;
+      const jaw = anaVals[i] || '(belum dijawab)';
+      const aTxt=doc.splitTextToSize('Jawaban: '+jaw,178); doc.setFont('helvetica','normal'); doc.setTextColor(60);
+      doc.text(aTxt,18,y); y+=aTxt.length*5+4; doc.setTextColor(30);
+    });
+    if(y>235){ doc.addPage(); y=18; }
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.text('E. KESIMPULAN',14,y); y+=7;
+    doc.setDrawColor(150); doc.rect(14,y-4,182,Math.max(22, doc.splitTextToSize(simpulan||' ',178).length*5+10));
+    doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.text(doc.splitTextToSize(simpulan||'(belum diisi)',178),17,y+2); y+=Math.max(26, doc.splitTextToSize(simpulan||' ',178).length*5+14);
+    // Footer
+    if(y>262){ doc.addPage(); y=18; }
+    doc.setFillColor(240,253,244); doc.rect(14,y,182,20,'F'); doc.setDrawColor(187,231,210); doc.rect(14,y,182,20,'S');
+    doc.setFontSize(9); doc.setTextColor(13,92,70); doc.setFont('helvetica','bold');
+    doc.text('Dikembangkan oleh: Hilda Khurota Akyun, S.TP., Gr.',18,y+7);
+    doc.setFont('helvetica','normal');
+    doc.text('SMA Al-Mukmin Boarding School  |  hildaakyun@gmail.com',18,y+13);
+    doc.text('Laboratorium Maya Kimia — Stoikiometri: Pereaksi Pembatas (Fase E)',18,y+18);
+    doc.save('LKPD_Stoikiometri_'+nama.replace(/\s+/g,'_')+'.pdf');
+    toast('✅ LKPD PDF berhasil diunduh! Periksa folder unduhanmu.');
+  } else {
+    // Fallback: jendela cetak (Save as PDF)
+    const rows=trials.length?trials.map(t=>`<tr><td>${t.no}</td><td>${t.nN2}</td><td>${t.nH2}</td><td>${t.lim}</td><td>${t.nh3}</td><td>${t.sisa}</td></tr>`).join(''):'<tr><td colspan="6">Belum ada data</td></tr>';
+    const w=window.open('','_blank');
+    w.document.write(`<html><head><title>LKPD — ${nama}</title><style>body{font-family:Arial;padding:34px;color:#1e293b}h1{color:#0d5c46;font-size:20px}h2{color:#0d5c46;font-size:15px;margin-top:20px}table{border-collapse:collapse;width:100%;font-size:12px;margin-top:8px}th,td{border:1px solid #94a3b8;padding:6px;text-align:center}th{background:#12795c;color:#fff}p{font-size:13px;line-height:1.7}.ft{margin-top:30px;font-size:11px;color:#0d5c46;border-top:2px solid #0d5c46;padding-top:8px}</style></head><body>
+    <h1>LKPD — Stoikiometri: Pereaksi Pembatas</h1>
+    <p><b>Nama:</b> ${nama} &nbsp;|&nbsp; <b>Kelas:</b> ${kelas} &nbsp;|&nbsp; <b>Tanggal:</b> ${tgl}</p>
+    <h2>Data Hasil Percobaan (N₂ + 3H₂ → 2NH₃)</h2>
+    <table><tr><th>No</th><th>mol N₂</th><th>mol H₂</th><th>Pereaksi Pembatas</th><th>NH₃ (mol)</th><th>Pereaksi Bersisa</th></tr>${rows}</table>
+    <h2>Jawaban Analisis</h2>
+    ${anaQs.map((q,i)=>`<p><b>${q}</b><br>${anaVals[i]||'<i>(belum dijawab)</i>'}</p>`).join('')}
+    <h2>Kesimpulan</h2><p>${simpulan||'<i>(belum diisi)</i>'}</p>
+    <div class="ft"><b>Hilda Khurota Akyun, S.TP., Gr.</b> — SMA Al-Mukmin Boarding School — hildaakyun@gmail.com<br>Gunakan Ctrl+P lalu pilih "Save as PDF" untuk menyimpan.</div>
+    <script>window.onload=()=>window.print()<\/script></body></html>`);
+    w.document.close();
+    toast('🖨️ Jendela cetak dibuka — pilih "Save as PDF".');
+  }
+});
+
+/* ================================================================
+   ASISTEN AI "KIMI"
+================================================================ */
+const aiKB=[
+ {k:['halo','hai','hello','assalam','pagi','siang','sore'],r:'Halo juga! 👋 Aku <b>Kimi</b>, asisten AI kimiamu. Aku siap membantumu memahami <b>stoikiometri dan pereaksi pembatas</b>. Mau tanya apa hari ini? 😊'},
+ {k:['pereaksi pembatas','limiting','habis lebih dulu'],r:'🎯 <b>Pereaksi pembatas</b> adalah pereaksi yang <b>habis terlebih dahulu</b> dalam reaksi, sehingga reaksi berhenti dan ia <b>menentukan jumlah maksimum produk</b> yang terbentuk. Pereaksi yang masih tersisa disebut <b>pereaksi berlebih</b>. Coba jalankan Simulasi tab ⚗️ untuk melihatnya secara langsung!'},
+ {k:['stoikiometri'],r:'📚 <b>Stoikiometri</b> adalah ilmu yang mempelajari hubungan kuantitatif (perbandingan mol/massa) antara pereaksi dan produk dalam reaksi kimia, berdasarkan persamaan reaksi setara dan hukum dasar kimia seperti Hukum Lavoisier.'},
+ {k:['mol','avogadro'],r:'🔢 <b>Mol</b> adalah satuan jumlah zat. 1 mol = <b>6,022 × 10²³ partikel</b> (Bilangan Avogadro) dan setara dengan <b>Ar atau Mr</b> zat dalam gram. Contoh: Mr H₂O = 18, jadi massa 1 mol H₂O = 18 gram. Koefisien reaksi juga menyatakan perbandingan mol!'},
+ {k:['lavoisier','kekekalan massa'],r:'⚖️ <b>Hukum Lavoisier (Hukum Kekekalan Massa)</b>: "Dalam ruang tertutup, massa zat sebelum dan sesudah reaksi adalah sama." Contoh dari buku IPA Kelas X: 4,08 g Zn + 2 g S → 6,08 g ZnS. Massa sebelum = massa sesudah!'},
+ {k:['hitung','cara menghitung','rumus','menghitung'],r:'🧮 <b>Cara menghitung pereaksi pembatas:</b><br>① Bagi mol setiap pereaksi dengan koefisiennya.<br>② Nilai <b>terkecil</b> = pereaksi pembatas.<br>③ Produk = (mol pembatas ÷ koefisien pembatas) × koefisien produk.<br>④ Sisa pereaksi berlebih = mol awal − mol yang bereaksi.<br>Contoh: N₂ + 3H₂ → 2NH₃ dengan 2 mol N₂ & 3 mol H₂ → H₂/3 = 1 < N₂/1 = 2, jadi H₂ pembatas → NH₃ = 2 mol, sisa N₂ = 1 mol.'},
+ {k:['simulasi','cara pakai','gunakan simulasi','mulai reaksi'],r:'⚗️ <b>Cara menggunakan Simulasi:</b><br>1️⃣ Geser slider untuk mengatur mol N₂ (0–5) dan H₂ (0–15).<br>2️⃣ Tekan tombol <b>⚡ Mulai Reaksi</b>.<br>3️⃣ Amati molekul yang habis dan yang tersisa di ruang reaksi.<br>4️⃣ Baca hasil & langkah perhitungan di panel kanan.<br>5️⃣ Tekan <b>📋 Rekam ke LKPD</b> lalu ulangi minimal 4 percobaan!'},
+ {k:['lkpd','lembar kerja','unduh','pdf','download'],r:'📋 <b>LKPD</b> berisi tabel data percobaan (direkam dari Simulasi), pertanyaan analisis, dan kesimpulan. Setelah lengkap, tekan tombol <b>⬇ Unduh LKPD (PDF)</b> untuk menyimpan laporan praktikummu. Ingat isi semua kolom ya!'},
+ {k:['evaluasi','soal','kuis','nilai'],r:'✅ <b>Evaluasi</b> terdiri dari 15 soal: 8 pilihan ganda (no. 1–8), 3 soal centang multi-jawaban (no. 9–11), dan 4 isian paragraf rumpang (no. 12–15). Baca teori dulu di tab 📖 supaya nilaimu maksimal!'},
+ {k:['berlebih','sisa','excess','tersisa'],r:'🧊 <b>Pereaksi berlebih</b> adalah pereaksi yang masih tersisa setelah reaksi selesai. Rumusnya: <b>sisa = mol awal − mol yang bereaksi</b>. Di Simulasi, molekul yang tampak redup setelah reaksi itulah pereaksi berlebih!'},
+ {k:['amonia','nh3','haber'],r:'💨 <b>Amonia (NH₃)</b> dibuat melalui proses <b>Haber-Bosch</b>: N₂ + 3H₂ → 2NH₃. Amonia penting untuk pupuk! Di tab Simulasi, kamu bisa memutar molekul 3D NH₃ — bentuknya seperti <b>piramida</b> lho! 🎱'},
+ {k:['terima kasih','makasih','thanks'],r:'Sama-sama! 😄 Semangat belajarnya ya! Kalau ada yang bingung lagi, panggil saja aku kapan pun. 🤖💚'},
+ {k:['reset'],r:'↺ Tombol <b>↺</b> merah di pojok kanan atas digunakan untuk mereset seluruh data (LKPD, simulasi, evaluasi). Setiap panel juga punya tombol reset masing-masing.'}
+];
+const aiPanel=document.getElementById('aiPanel'), aiFab=document.getElementById('aiFab'),
+      aiMsgs=document.getElementById('aiMsgs'), aiInput=document.getElementById('aiInput');
+aiFab.addEventListener('click',()=>{
+  sfx('pop'); aiPanel.classList.toggle('hidden');
+  if(!aiPanel.classList.contains('hidden') && !aiMsgs.children.length){
+    botSay('Hai! 👋 Aku <b>Kimi</b>, asisten AI kimiamu. Aku bisa membantumu memahami <b>pereaksi pembatas</b>, cara menghitung, cara menggunakan simulasi, dan materi LKPD. Silakan pilih topik cepat di bawah atau tulis pertanyaanmu! 💬');
+  }
+});
+document.getElementById('aiClose').addEventListener('click',()=>{ sfx('click'); aiPanel.classList.add('hidden'); });
+document.querySelectorAll('.ai-chip').forEach(c=>c.addEventListener('click',()=>{ sfx('click'); askAI(c.dataset.q); }));
+document.getElementById('aiSend').addEventListener('click',()=>{ if(aiInput.value.trim()){ askAI(aiInput.value); } });
+aiInput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&aiInput.value.trim()) askAI(aiInput.value); });
+function addMsg(html,who){
+  const d=document.createElement('div'); d.className='msg '+who; d.innerHTML=html; aiMsgs.appendChild(d);
+  aiMsgs.scrollTop=aiMsgs.scrollHeight; return d;
+}
+function botSay(html){
+  const t=addMsg('<span></span><span></span><span></span>','bot typing');
+  setTimeout(()=>{ t.classList.remove('typing'); t.innerHTML=html; aiMsgs.scrollTop=aiMsgs.scrollHeight; sfx('pop'); },700+Math.random()*500);
+}
+function askAI(text){
+  addMsg(text.replace(/</g,'&lt;'),'me'); aiInput.value=''; sfx('click');
+  const low=text.toLowerCase();
+  const hit=aiKB.find(k=>k.k.some(kw=>low.includes(kw)));
+  botSay(hit?hit.r:'Hmm, aku belum yakin memahami pertanyaanmu. 🤔 Coba tanyakan tentang:<br>• "Apa itu pereaksi pembatas?"<br>• "Cara menghitungnya"<br>• "Cara pakai simulasi"<br>• "Hukum Lavoisier"<br>• "Cara unduh LKPD"');
+}
+
+/* ---------------- INIT ---------------- */
+updateSliderLabels();
+document.addEventListener('click',e=>{ if(e.target.closest('button,label.opt,.tab-btn')){ /* sounds already attached where needed */ } },true);
+</script>
+</body>
+</html>
